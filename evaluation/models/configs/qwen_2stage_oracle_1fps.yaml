@@ -1,0 +1,10 @@
+model_name: "qwen_2stage_oracle" # ["qwen_2stage_oracle"]
+
+prompt_dir: "./evaluation/models/prompts"
+
+video_config:
+  clip_model_name: "google/siglip2-large-patch16-512"
+
+phase2_config:
+  prompt_file: "phase2.txt"  
+  fps: 1  

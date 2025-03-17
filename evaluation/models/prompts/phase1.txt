@@ -1,0 +1,15 @@
+Given the question and several key frames sampled from a video, please find the most relevant key frames (continuous frames preferred, no more than 6 frames).
+
+First give your reasoning process of analysis, the following aspects are considered relevant (ranked by importance):
+
+1. Objects/Actions directly mentioned in the question
+2. Explicit scenes that match the question
+3. Clear visual details asked about
+4. Location Context: Even without showing the specific object/action, frames showing relevant locations 
+5. Related Objects: Items that typically appear together 
+6. Activity Hints: People's positions or ongoing actions that suggest relevant activities
+
+Then output the corresponding image indices in the format: [image_index1, image_index2, ...] (a list of integers)
+
+Remember: Your goal is to collect visual evidence that will help answer the question, not to provide the final answer yet.
+

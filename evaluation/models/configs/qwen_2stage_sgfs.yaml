@@ -1,0 +1,35 @@
+model_name: "qwen_2stage_sgfs" # ["qwen_1stage_base", "qwen_2stage_sgfs"]
+
+prompt_dir: "./evaluation/models/prompts"
+
+video_config:
+  clip_model_name: "google/siglip2-large-patch16-512"
+
+
+phase1_config:
+  prompt_file: "phase1.txt"  # Template for phase 1 prompt
+
+  sampling_strategy: "sgfs"  # ["global_dynamic", "sgfs", "fixed", "fps"]
+  # Fixed Sampling Configuration
+  fixed_config:
+    num_frames: null  # Fixed number of frames to sample
+    
+  # FPS-based Sampling Configuration
+  fps_config:
+    fps: null  # Sample one frame every 5 seconds
+    
+  # SGFS Sampling Configuration
+  sgfs_config:
+    # Initial sampling (choose one)
+    initial_frames: null  # Number of initial fixed samples
+    initial_fps: 0.06666666667    # FPS for initial sampling
+    # Target frame selection (choose one)
+    num_frames: null      # Number of frames to keep
+    keep_ratio: 0.25     # Ratio of frames to keep (0.0-1.0)
+    # Filtering parameters
+    length_penalty: 10.0        # Penalty for temporal distance
+    length_penalty_exponent: 0.3 # Exponent for length penalty
+
+phase2_config:
+  prompt_file: "phase2.txt"  
+  fps: 1  

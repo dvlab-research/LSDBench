@@ -1,0 +1,14 @@
+colorama
+decord
+loguru
+numpy
+opencv_python
+packaging
+Pillow
+PyYAML
+Requests
+torch
+torchvision
+tqdm
+transformers>=4.50.0
+accelerate>=0.26.0
