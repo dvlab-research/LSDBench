@@ -149,8 +149,6 @@ class RHSQwen25VL:
             prefix1 = open(os.path.join(self.prompt_dir, self.config['phase1_config']["prompt_file"]), "r").read()
             question1 = prefix1 + '\n' + "Question:" + question
             phase1_result, time_segments = self.ask_question_multi_frames(question1, video_path, sampling_config=self.config['phase1_config'], return_segments=True)   
-            print("phase1_result", phase1_result)
-            print("time_segments", time_segments)
             
             torch.cuda.empty_cache()
 
@@ -159,7 +157,6 @@ class RHSQwen25VL:
             prefix2 = open(os.path.join(self.prompt_dir, self.config['phase2_config']["prompt_file"]), "r").read()
             question2 = prefix2 + '\n' + question + '\n' + options
             phase2_result = self.ask_question_video(question2, video_path, time_segments, fps=phase2_fps)
-            print("phase2_result", phase2_result)
 
             torch.cuda.empty_cache()
 

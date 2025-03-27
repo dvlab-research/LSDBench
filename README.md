@@ -3,6 +3,9 @@
 
 A benchmark that focuses on the sampling dilemma in long-video tasks. Through well-designed tasks, it evaluates the sampling efficiency of long-video VLMs.
 
+Arxiv Paper: [📖 Does Your Vision-Language Model Get Lost in the Long Video Sampling Dilemma?](https://arxiv.org/abs/2503.12496)   
+
+
 ## Sampling Dilemma
 
 <div align=center>
