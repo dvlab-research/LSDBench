@@ -40,7 +40,23 @@ The LSDBench dataset is designed to evaluate the sampling efficiency of long-vid
 *   **Average Video Length:** 45.39 minutes (ranging from 20.32 to 115.32 minutes)
 *   **Average Target Segment Duration:** 3 minutes
 
-### 1. Video Download (Ego4D)
+### 1. Setup Environment
+
+```bash
+# Clone the repository
+git clone https://github.com/taintaintainu/LSDBench.git
+cd LSDBench
+
+# Create a conda environment
+conda create -n lsdbench python=3.9.2
+conda activate lsdbench
+
+# Install the dependencies
+pip install -r evaluation/requirements.txt
+pip install flash-attn --no-build-isolation
+```
+
+### 2. Video Download (Ego4D)
 
 Due to the Ego4D dataset license restrictions, you must obtain an Ego4D license and download the videos directly from the Ego4D website using the [Ego4D CLI tool](https://github.com/facebookresearch/Ego4d/tree/main/ego4d/cli). We also provide a quick guide to download the videos:
 
@@ -79,10 +95,13 @@ Due to the Ego4D dataset license restrictions, you must obtain an Ego4D license 
 
         *   `path/to/your/ego4d_data`: The local directory where you want to store the downloaded videos.
 
-### 2. Video Preprocessing
+### 3. Video Preprocessing
 
-We provide a script to preprocess(downsample) the videos for the LSDBench dataset.
-
+We provide a script to preprocess(downsample) the videos for the LSDBench dataset. You need to install ffmpeg for the video downsampling.
+```bash
+conda install -c conda-forge ffmpeg
+```
+And then run the following command to preprocess the videos.
 ```bash
 python lsdbench/preprocess_videos.py  "VIDEO_DIR" "DOWNSAMPLED_VIDEO_DIR" "lsdbench/video_ids.txt" [--target-fps FPS]
 ```
@@ -93,23 +112,6 @@ Replace the following placeholders:
 *   `DOWNSAMPLED_VIDEO_DIR`: The directory where the preprocessed videos will be stored.
 *   `--target-fps FPS`: (Optional) Target frame rate for the output videos. By default, it maintains the original frame rate, which may result in longer loading times. You can set a lower target value (not recommended below 2 fps) to reduce video size and loading time.
 
-### 3. Environment Setup
-
-First clone the repository:
-
-```bash
-git clone https://github.com/taintaintainu/LSDBench.git
-cd LSDBench
-```
-
-Before running the evaluation, you need to set up a Python virtual environment with the required dependencies:
-
-```bash
-conda create -n lsdbench python=3.9.2
-conda activate lsdbench
-pip install -r evaluation/requirements.txt
-pip install flash-attn --no-build-isolation
-```
 
 ### 4. Evaluation
 

@@ -48,6 +48,7 @@ def downsample_video(input_video_path, output_video_path, target_fps=None):
         temp_output_path = output_video_path.split('.')[0] + '.temp.mp4'
         if os.path.exists(temp_output_path):
             os.remove(temp_output_path)
+        
             
         # Use target_fps if provided, otherwise use original_fps
         output_fps = target_fps if target_fps is not None else original_fps
@@ -68,7 +69,9 @@ def downsample_video(input_video_path, output_video_path, target_fps=None):
         
         with tqdm(total=total_duration, desc=f"Processing {os.path.basename(input_video_path)}", leave=False) as pbar:
             process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            stderr_output = []
             for line in process.stderr:
+                stderr_output.append(line)
                 match = re.search(r'time=(\d+:\d+:\d+\.\d+)', line)
                 if match:
                     time_str = match.group(1)
@@ -81,6 +84,13 @@ def downsample_video(input_video_path, output_video_path, target_fps=None):
             os.replace(temp_output_path, output_video_path)
             print(f"Successfully downsampled video using FFmpeg")
             return
+        else:
+            error_msg = '\n'.join(stderr_output)
+            print(f"FFmpeg method failed with return code {process.returncode}.")
+            print(f"FFmpeg error output:\n{error_msg}")
+            if os.path.exists(temp_output_path):
+                os.remove(temp_output_path)
+            raise RuntimeError(f"FFmpeg failed with return code {process.returncode}. Error: {error_msg}")
             
     except (subprocess.SubprocessError, FileNotFoundError) as e:
         print(f"FFmpeg method failed: {str(e)}. Falling back to Python implementation.")
@@ -93,7 +103,7 @@ def process_video(filename, source_dir, target_dir, target_fps=None):
     if '_' not in filename and filename.endswith(('.mp4', '.avi', '.mov', '.mkv')):
         input_video_path = os.path.join(source_dir, filename)
         output_video_path = os.path.join(target_dir, filename)
-        print(f"Processing {filename}...")
+        #print(f"Processing {filename}...")
          
         downsample_video(input_video_path, output_video_path, target_fps)
 
