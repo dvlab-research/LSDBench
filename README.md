@@ -4,7 +4,7 @@
 A benchmark that focuses on the sampling dilemma in long-video tasks. Through well-designed tasks, it evaluates the sampling efficiency of long-video VLMs.
 
 Arxiv Paper: [📖 Does Your Vision-Language Model Get Lost in the Long Video Sampling Dilemma?](https://arxiv.org/abs/2503.12496)   
-
+Huggingface: [🤗 LSDBench](https://huggingface.co/datasets/TainU/LSDBench)
 
 ## Sampling Dilemma
 
@@ -14,17 +14,34 @@ Arxiv Paper: [📖 Does Your Vision-Language Model Get Lost in the Long Video Sa
 
 ***(Left)** In Q1, identifying a camera wearer's visited locations requires analyzing the entire video. However, key frames are sparse, so sampling one frame per minute often provides enough information. In contrast, Q2 examines the packing order during checkout, requiring high-resolution sampling to capture rapid actions. **(Right)** **Sampling Dilemma** emerges in tasks like Q2: a low sampling density fails to provide sufficient visual cues for accurate answers, while a high sampling density results in redundant frames, significantly slowing inference speed. This challenge underscores the need for adaptive sampling strategies, especially for tasks with high necessary sampling density.*
 
+## Contents
+
+- [Introduction](#introduction)
+- [Key Features](#key-features)
+- [LSDBench](#lsdbench)
+- [Evaluation](#evaluation-on-lsdbench)
+- [Results](#results)
+- [Citation](#citation)
+
 
 ## Introduction
 
-Large Vision-Language Models (LVLMs) have shown impressive capabilities in video understanding. However, processing long videos efficiently remains a challenge due to the "Sampling Dilemma": low-density sampling risks missing critical information, while high-density sampling introduces redundancy. Our work introduces **LSDBench**, a novel benchmark designed to evaluate LVLMs on long-video tasks by constructing high Necessary Sampling Density (NSD, the minimum sampling density required to accurately answer a given question) questions. We also provide the code for our proposed **Reasoning-Driven Hierarchical Sampling (RHS)** framework and **Semantic-Guided Frame Selector (SGFS)** to address this dilemma.
+Large Vision-Language Models (LVLMs) have shown impressive capabilities in video understanding. However, processing long videos efficiently remains a challenge due to the "Sampling Dilemma": low-density sampling risks missing critical information, while high-density sampling introduces redundancy. Our work introduces **LSDBench**, a novel benchmark designed to evaluate LVLMs on long-video tasks by constructing high Necessary Sampling Density (NSD, the minimum sampling density required to accurately answer a given question) questions. We also provide the code for our proposed training-free **Reasoning-Driven Hierarchical Sampling (RHS)** framework and **Semantic-Guided Frame Selector (SGFS)** to address this dilemma.
 
 ## Key Features
 
 <div align=center>
 <img width="50%" src="assets/accuracy_vs_frames.png"/>
+<figcaption>
+
+</figcaption>
 </div>
 
+_**The line graph illustrates the relationship between
+the number of sampled frames (x-axis) and accuracy on LSD-
+Bench (y-axis).** We conduct experiments on two settings: **Oracle** and **Full Video**. The Oracle setting involves using the annotated target segment as the video input, while the Full Video setting provides the complete long video as input. Solid lines represent results under the Full Video setting, while dashed lines with inverted triangles correspond to the Oracle setting. The gap between the Oracle and global uniform sampling highlights the potential for improved sampling strategies in long-video VLMs._
+
+  
 
 *   **LSDBench Dataset:** A benchmark with questions characterized by high Necessary Sampling Density (NSD) requirements and videos lasting for hours.  Focuses on dense action sequences within short segments of long videos.
 *   **Reasoning-Driven Hierarchical Sampling (RHS):** A two-stage framework that improves long-video processing efficiency by focusing the VLM on important segments.
@@ -39,6 +56,38 @@ The LSDBench dataset is designed to evaluate the sampling efficiency of long-vid
 *   **Number of Videos:** 400
 *   **Average Video Length:** 45.39 minutes (ranging from 20.32 to 115.32 minutes)
 *   **Average Target Segment Duration:** 3 minutes
+
+
+**Annotations:**
+
+The annotations are stored in `lsdbench/mc_qa_annotations_1300.json`. Each entry contains the following fields:
+
+*   `question`: The question text.
+*   `options`: The options for the question. 
+*   `correct_answer`: The correct answer.
+*   `original_answer`: The original open-ended answer text.
+*   `time_range`: The time range of the target segment.
+*   `video_id`: The unique identifier for the video.
+
+Example:
+```json
+"question": "How did the camera wearer handle gardening tools and tend to plants before moving back indoors?",
+"options": {
+    "A": "Shook a container filled with soil, cleaned it, used the soil for a banana plant, uprooted weeds, and discarded them.",
+    "B": "Used a rake to gather leaves, planted new flowers, applied fertilizer, and watered the garden.",
+    "C": "Watered the banana plant, pruned dead leaves, planted new seeds, and organized gardening tools.",
+    "D": "Mixed compost into the soil, pruned the banana plant, rearranged pots, and swept the garden path."
+},
+"correct_answer": "A",
+"original_answer": "Before heading back inside, the camera wearer was seen shaking a container filled with soil, cleaning it, and then using the soil to tend to a banana plant. After that, they uprooted weeds from the garden soil and threw them away.",
+"time_range": {
+    "start": "00:49:00",
+    "end": "00:52:00"
+},
+"video_id": "6fd90f8d-7a4d-425d-a812-3268db0b0342"
+```
+
+## Evaluation on LSDBench
 
 ### 1. Setup Environment
 
@@ -115,7 +164,11 @@ Replace the following placeholders:
 
 ### 4. Evaluation
 
-**Example 1: Evaluate RHS-Qwen2.5-VL on LSDBench**
+**Full video setting:**
+
+The complete video and multiple-choice questions are provided to the model for answering.
+
+Example 1: Evaluate RHS-Qwen2.5-VL on LSDBench
 ```bash
 python evaluation/eval.py \
  --data_path lsdbench/mc_qa_annotations_1300.json \
@@ -124,7 +177,11 @@ python evaluation/eval.py \
  --model_args config_path=evaluation/models/configs/qwen_2stage_sgfs.yaml,use_flash_attention_2=True
 ```
 
-**Example 2: Evaluate Qwen2.5-VL on LSDBench in Oracle Setting**
+**Oracle setting:**
+
+The target segment annotations can be accessed by the model.
+
+Example 2: Evaluate Qwen2.5-VL on LSDBench in Oracle Setting
 ```bash
 python evaluation/eval_oracle.py \
  --data_path lsdbench/mc_qa_annotations_1300.json \
@@ -132,6 +189,28 @@ python evaluation/eval_oracle.py \
  --model_name qwen_2stage_oracle \
  --model_args config_path=evaluation/models/configs/qwen_2stage_oracle_1fps.yaml,use_flash_attention_2=True
 ```
+
+## Results
+
+<div align=left>
+<img width="45%" src="assets/main_table.png"/>
+</div>
+
+_**Performance comparison of different models and sampling
+strategies.** We present three testing settings in total: Only
+Text, Oracle, and Full Video. In the Only Text setting, the model is
+provided with no visual information whatsoever. The Oracle setting
+involves using the annotated target segment as the video input,
+while the Full Video setting provides the complete long video as
+input. The ”Sampling” column lists the sampling strategies used:
+FPS represents sampling at fixed time intervals, fixed denotes uniform
+sampling with a fixed number of frames, and 2stage refers
+to the method we propose. Under each sampling strategy, the average
+number of sampled frames during evaluation on the LSDBench
+dataset is reported in the ”Frames” column, along with the
+corresponding sampling density (SD)._
+
+More results can be found in the [paper](https://arxiv.org/abs/2503.12496).
 
 ## Citation
 
